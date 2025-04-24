@@ -1,0 +1,174 @@
+.dictionary-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dictionary-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dictionary-page h1 {
+  color: #4a6da7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.dictionary-search {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.letters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.letter-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.letter-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.letter-card.selected {
+  border: 2px solid #4a6da7;
+  background-color: #f0f5ff;
+}
+
+.letter {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.letter-image {
+  width: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  height: 80px;
+}
+
+.letter-details {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.letter-details h2 {
+  color: #4a6da7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.letter-media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.letter-image-container, .letter-video-container {
+  flex: 1;
+  min-width: 250px;
+  text-align: center;
+}
+
+.letter-image-large {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.letter-video {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f8f8f8;
+}
+
+.caption {
+  margin-top: 0.5rem;
+  color: #666;
+  font-style: italic;
+}
+
+.letter-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.handshape-description, .example-word {
+  flex: 1;
+  min-width: 250px;
+}
+
+.handshape-description h3, .example-word h3 {
+  color: #4a6da7;
+  margin-bottom: 0.5rem;
+}
+
+.word-video {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .dictionary-page {
+    padding: 1rem;
+  }
+  
+  .letters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+  
+  .letter-details {
+    padding: 1rem;
+  }
+  
+  .letter-media, .letter-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+} 

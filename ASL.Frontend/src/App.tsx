@@ -15,6 +15,26 @@ import {
   ActiveMatches,
   MatchHistory
 } from './pages';
+import { Navbar } from './components';
+import './App.css';
+
+// Layout component that includes Navbar
+const Layout = ({ children, requireAuth = true }: { children: React.ReactNode, requireAuth?: boolean }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (requireAuth && !isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  return (
+    <div className="app-layout">
+      {isAuthenticated && <Navbar />}
+      <div className="app-content">
+        {children}
+      </div>
+    </div>
+  );
+};
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -29,53 +49,97 @@ const App = () => {
         {/* Protected Routes */}
         <Route 
           path="/detection" 
-          element={isAuthenticated ? <DetectionPage /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <DetectionPage />
+            </Layout>
+          } 
         />
         
         {/* Exercise Routes */}
         <Route 
           path="/exercises/a-f" 
-          element={isAuthenticated ? <AtoFExercise /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <AtoFExercise />
+            </Layout>
+          } 
         />
         <Route 
           path="/exercises/g-k" 
-          element={isAuthenticated ? <GtoKExercise /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <GtoKExercise />
+            </Layout>
+          } 
         />
         <Route 
           path="/exercises/l-p" 
-          element={isAuthenticated ? <LtoPExercise /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <LtoPExercise />
+            </Layout>
+          } 
         />
         <Route 
           path="/exercises/q-u" 
-          element={isAuthenticated ? <QtoUExercise /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <QtoUExercise />
+            </Layout>
+          } 
         />
         <Route 
           path="/exercises/v-z" 
-          element={isAuthenticated ? <VtoZExercise /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <VtoZExercise />
+            </Layout>
+          } 
         />
         
         {/* Dictionary Route */}
         <Route 
           path="/dictionary" 
-          element={isAuthenticated ? <DictionaryPage /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <DictionaryPage />
+            </Layout>
+          } 
         />
         
         {/* PvP Routes */}
         <Route 
           path="/pvp/create" 
-          element={isAuthenticated ? <CreateMatch /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <CreateMatch />
+            </Layout>
+          } 
         />
         <Route 
           path="/pvp/join" 
-          element={isAuthenticated ? <JoinMatch /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <JoinMatch />
+            </Layout>
+          } 
         />
         <Route 
           path="/pvp/active" 
-          element={isAuthenticated ? <ActiveMatches /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <ActiveMatches />
+            </Layout>
+          } 
         />
         <Route 
           path="/pvp/history" 
-          element={isAuthenticated ? <MatchHistory /> : <Navigate to="/login" />} 
+          element={
+            <Layout>
+              <MatchHistory />
+            </Layout>
+          } 
         />
         
         {/* Default Route */}
