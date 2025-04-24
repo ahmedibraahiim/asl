@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
     public DbSet<GameMatch> GameMatches { get; set; }
+    public DbSet<ASLAlphabet> ASLAlphabets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
