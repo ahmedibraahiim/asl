@@ -8,9 +8,8 @@ const DictionaryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [showDetails, setShowDetails] = useState(false);
 
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  
   const letterGroups = [
     { id: 'all', label: 'All' },
     { id: 'a-f', label: 'A-F' },
@@ -28,9 +27,7 @@ const DictionaryPage = () => {
         
         if (response.success) {
           setLetters(response.data);
-          if (response.data.length > 0) {
-            setSelectedLetter(response.data[0]);
-          }
+          setShowDetails(false);
         } else {
           setError(response.message);
         }
@@ -45,36 +42,35 @@ const DictionaryPage = () => {
     loadDictionary();
   }, []);
 
-  const handleSelectLetter = (letter: string) => {
-    const found = letters.find(l => l.letter === letter);
-    if (found) {
-      setSelectedLetter(found);
-    }
+  const handleSelectLetter = (letter: ASLLetter) => {
+    setSelectedLetter(letter);
+    setShowDetails(true);
+  };
+
+  const closeDetails = () => {
+    setShowDetails(false);
   };
 
   const filterLetters = (filter: string) => {
     setActiveFilter(filter);
+    setShowDetails(false);
   };
 
-  const getFilteredAlphabet = () => {
+  const getFilteredLetters = () => {
     switch (activeFilter) {
       case 'a-f':
-        return alphabet.slice(0, 6); // A-F
+        return letters.filter(letter => letter.letter >= 'A' && letter.letter <= 'F');
       case 'g-k':
-        return alphabet.slice(6, 11); // G-K
+        return letters.filter(letter => letter.letter >= 'G' && letter.letter <= 'K');
       case 'l-p':
-        return alphabet.slice(11, 16); // L-P
+        return letters.filter(letter => letter.letter >= 'L' && letter.letter <= 'P');
       case 'q-u':
-        return alphabet.slice(16, 21); // Q-U
+        return letters.filter(letter => letter.letter >= 'Q' && letter.letter <= 'U');
       case 'v-z':
-        return alphabet.slice(21); // V-Z
+        return letters.filter(letter => letter.letter >= 'V' && letter.letter <= 'Z');
       default:
-        return alphabet;
+        return letters;
     }
-  };
-
-  const isLetterAvailable = (letter: string) => {
-    return letters.some(l => l.letter === letter);
   };
 
   return (
@@ -101,71 +97,79 @@ const DictionaryPage = () => {
       ) : error ? (
         <div className="error">{error}</div>
       ) : (
-        <div className="dictionary-layout">
-          <div className="alphabet-grid">
-            {getFilteredAlphabet().map(letter => (
+        <>
+          <div className="letter-cards-grid">
+            {getFilteredLetters().map(letter => (
               <div 
-                key={letter}
-                className={`letter-tile ${selectedLetter?.letter === letter ? 'active' : ''} ${!isLetterAvailable(letter) ? 'disabled' : ''}`}
-                onClick={() => isLetterAvailable(letter) && handleSelectLetter(letter)}
+                key={letter.letter}
+                className="letter-card"
+                onClick={() => handleSelectLetter(letter)}
               >
-                {letter}
+                <div className="letter-card-content">
+                  <h3 className="letter-title">{letter.letter}</h3>
+                  <div className="letter-card-image">
+                    <img 
+                      src={letter.imageUrl}
+                      alt={`ASL Letter ${letter.letter}`}
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
           
-          {selectedLetter && (
-            <div className="letter-details-card">
-              <h2>Letter {selectedLetter.letter}</h2>
-              
-              <div className="letter-display">
-                <div className="letter-image-container">
-                  <img 
-                    src={selectedLetter.imageUrl}
-                    alt={`ASL Letter ${selectedLetter.letter}`}
-                    className="letter-image-large"
-                  />
+          {selectedLetter && showDetails && (
+            <div className="letter-detail-overlay">
+              <div className="letter-detail-modal">
+                <button className="close-button" onClick={closeDetails}>×</button>
+                
+                <div className="letter-detail-header">
+                  <h2>Letter {selectedLetter.letter}</h2>
                 </div>
                 
-                <div className="letter-video-container">
-                  <video 
-                    src={selectedLetter.videoUrl}
-                    controls
-                    poster={selectedLetter.imageUrl}
-                    className="letter-video"
-                    preload="metadata"
-                  />
-                  <p className="caption">How to sign letter {selectedLetter.letter}</p>
-                </div>
-              </div>
-              
-              <div className="letter-info-section">
-                <div className="info-block hand-position">
-                  <div className="info-header">
+                <div className="letter-detail-content">
+                  <div className="detail-section">
+                    <div className="detail-media">
+                      <div className="detail-image">
+                        <img 
+                          src={selectedLetter.imageUrl}
+                          alt={`ASL Letter ${selectedLetter.letter}`}
+                        />
+                      </div>
+                      
+                      <div className="detail-video">
+                        <video 
+                          src={selectedLetter.videoUrl}
+                          controls
+                          poster={selectedLetter.imageUrl}
+                          preload="metadata"
+                        />
+                        <p className="caption">How to sign letter {selectedLetter.letter}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="detail-section">
                     <h3>Hand Position</h3>
+                    <p>{selectedLetter.handshapeDescription}</p>
                   </div>
-                  <p>{selectedLetter.handshapeDescription}</p>
-                </div>
-              </div>
-              
-              <div className="letter-info-section">
-                <div className="info-block example-word">
-                  <div className="info-header">
+                  
+                  <div className="detail-section">
                     <h3>Example Word: {selectedLetter.exampleWord}</h3>
-                  </div>
-                  <div className="example-video-wrapper">
-                    <video 
-                      src={selectedLetter.wordASLVideo}
-                      controls
-                      className="word-video"
-                      preload="metadata"
-                    />
+                    <div className="example-video">
+                      <video 
+                        src={selectedLetter.wordASLVideo}
+                        controls
+                        preload="metadata"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
