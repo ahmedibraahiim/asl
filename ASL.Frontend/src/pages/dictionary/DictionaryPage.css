@@ -9,166 +9,358 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .dictionary-page h1 {
-  color: #4a6da7;
+  color: #375a90;
   margin-bottom: 1.5rem;
   text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  position: relative;
 }
 
-.dictionary-search {
+.dictionary-page h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: #375a90;
+  border-radius: 2px;
+}
+
+.dictionary-details h2 {
+  color: #3a5a8c;
   margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
-}
-
-.search-input {
-  width: 100%;
-  max-width: 500px;
-  padding: 0.8rem 1rem;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.letters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.letter-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
-.letter-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.letter-card.selected {
-  border: 2px solid #4a6da7;
-  background-color: #f0f5ff;
-}
-
-.letter {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.letter-image {
-  width: 100%;
-  border-radius: 4px;
-  object-fit: cover;
-  height: 80px;
-}
-
-.letter-details {
-  background-color: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.letter-details h2 {
-  color: #4a6da7;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.letter-media {
+.dictionary-layout {
   display: flex;
-  flex-wrap: wrap;
   gap: 2rem;
+}
+
+.alphabet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  align-content: start;
+  width: 220px;
+}
+
+.letter-tile {
+  background-color: white;
+  border-radius: 8px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  border: 1px solid #edf2f7;
+}
+
+.letter-tile:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.letter-tile.active {
+  background-color: #f0f7ff;
+  border: 1px solid #375a90;
+  color: #375a90;
+}
+
+.letter-tile.disabled {
+  opacity: 0.4;
+  cursor: default;
+  background-color: #f5f5f5;
+}
+
+.letter-details-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2.5rem;
+  flex: 1;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.letter-details-card h2 {
+  color: #375a90;
   margin-bottom: 2rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
+}
+
+.letter-details-card h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #e5eefa;
+  border-radius: 1px;
+}
+
+.letter-display {
+  display: flex;
+  gap: 3rem;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .letter-image-container, .letter-video-container {
   flex: 1;
-  min-width: 250px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .letter-image-large {
   width: 100%;
-  max-width: 250px;
+  max-width: 200px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f5f5f5;
+  padding: 0.5rem;
+  background-color: white;
 }
 
 .letter-video {
   width: 100%;
+  max-width: 300px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #f8f8f8;
+  background-color: #f8f9fa;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f5f5f5;
 }
 
 .caption {
-  margin-top: 0.5rem;
-  color: #666;
+  margin-top: 1rem;
+  color: #718096;
   font-style: italic;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-.letter-info {
+.letter-info-section {
+  margin-bottom: 2rem;
+}
+
+.info-block {
+  background-color: #f9fafc;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #edf2f7;
+  transition: all 0.2s ease;
+}
+
+.info-block:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.info-header {
+  margin-bottom: 0.75rem;
+}
+
+.info-header h3 {
+  color: #375a90;
+  font-size: 1.1rem;
+  font-weight: 600;
+  position: relative;
+  display: inline-block;
+  padding-left: 1rem;
+  border-left: 3px solid #375a90;
+}
+
+.info-block p {
+  color: #4a5568;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.example-video-wrapper {
+  margin-top: 1.5rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-}
-
-.handshape-description, .example-word {
-  flex: 1;
-  min-width: 250px;
-}
-
-.handshape-description h3, .example-word h3 {
-  color: #4a6da7;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
 }
 
 .word-video {
   width: 100%;
-  max-width: 300px;
-  border-radius: 8px;
-  margin-top: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  border-radius: 6px;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  font-size: 1rem;
+  color: #4a5568;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #375a90;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .error {
-  color: #e74c3c;
+  text-align: center;
+  padding: 2rem;
+  color: #e53e3e;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  margin: 2rem 0;
 }
 
-@media (max-width: 768px) {
+.dictionary-content {
+  animation: contentFadeIn 0.5s ease-in-out;
+}
+
+@keyframes contentFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filter-button {
+  background-color: #f0f7ff;
+  border: 1px solid #e6ecf5;
+  color: #375a90;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  min-width: 60px;
+}
+
+.filter-button:hover {
+  background-color: #e5eefa;
+}
+
+.filter-button.active {
+  background-color: #375a90;
+  color: white;
+  border-color: #375a90;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  background-color: #f7fafc;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 2rem 0;
+}
+
+.no-results p {
+  font-size: 1.2rem;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.reset-button {
+  background-color: #4a6da7;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(74, 109, 167, 0.25);
+}
+
+.reset-button:hover {
+  background-color: #3a5a8c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(74, 109, 167, 0.3);
+}
+
+@media (max-width: 992px) {
+  .dictionary-layout {
+    flex-direction: column;
+  }
+  
+  .alphabet-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .letter-display {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .letter-image-container, .letter-video-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .alphabet-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
   .dictionary-page {
     padding: 1rem;
   }
   
-  .letters-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  .letter-details-card {
+    padding: 1.5rem;
   }
   
-  .letter-details {
+  .info-block {
     padding: 1rem;
-  }
-  
-  .letter-media, .letter-info {
-    flex-direction: column;
-    gap: 1rem;
   }
 } 
