@@ -70,8 +70,8 @@ builder.Services.AddSwaggerGen(options =>
 // Configure database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Use SQLite database instead of SQL Server
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection"));
+    // Use SQL Server instead of SQLite
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 // Configure Identity
