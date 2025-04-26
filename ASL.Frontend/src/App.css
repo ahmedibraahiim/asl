@@ -15,6 +15,24 @@
   position: relative;
 }
 
+/* Detection page specific override */
+.app-layout.detection-page-container {
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app-content.detection-page-content {
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
+  width: 100%;
+  height: calc(100vh - 60px); /* Account for navbar height */
+  overflow: hidden;
+}
+
 /* Global styles */
 * {
   box-sizing: border-box;

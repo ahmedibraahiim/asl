@@ -185,9 +185,6 @@ const DetectionPage = () => {
     const scaleX = width;
     const scaleY = height;
     
-    // Remove duplicate clearRect - we already cleared in renderVideoFrame
-    // ctx.clearRect(0, 0, width, height);
-    
     // Optional: Add shadow for a glow effect (use smaller blur for thinner lines)
     ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
     ctx.shadowBlur = 2;
@@ -301,11 +298,6 @@ const DetectionPage = () => {
       ctx.lineWidth = 1;
       ctx.stroke();
     }
-
-    // Add debug information to check if landmarks are being drawn
-    ctx.fillStyle = 'white';
-    ctx.font = '12px Arial';
-    ctx.fillText(`Drawing ${landmarks.length} landmarks with intermediate points`, 10, 20);
   };
 
   // Process frame and update ui continuously
@@ -396,7 +388,6 @@ const DetectionPage = () => {
     <div className="detection-page">
       <div className="video-section">
         <div className="video-container">
-          {/* Visible video element */}
           <video 
             ref={videoRef}
             autoPlay
@@ -404,32 +395,24 @@ const DetectionPage = () => {
             muted
             className="webcam-video"
           />
-          
-          {/* Canvas overlay for landmarks */}
           <canvas 
             ref={canvasRef}
             className="landmark-canvas"
           />
-          
-          {/* Hidden canvas used for processing frames */}
           <canvas 
             ref={processingCanvasRef}
             style={{ display: 'none' }}
           />
-          
-          {/* Debug info overlay */}
           <div className="debug-overlay">
             <div>API: {apiStatus}</div>
-            <div>Landmarks: {landmarks.length}</div>
           </div>
         </div>
       </div>
       
       <div className="info-section">
-        {apiStatus === 'checking' && <p>Checking API status...</p>}
         {apiStatus === 'offline' && (
           <div className="alert alert-danger">
-            ASL Recognition API is offline. Detection will not work.
+            API is offline
           </div>
         )}
         
@@ -439,27 +422,29 @@ const DetectionPage = () => {
           </div>
         )}
         
-        <div className="result-container">
-          {detectedSign ? (
-            <div className="result">
-              <div className="letter-display">
-                <div className="detected-sign">{detectedSign}</div>
-                <div className="sign-instruction">Show This Letter</div>
-                {/* No image for now */}
-                {confidence !== null && (
-                  <div className="confidence">
-                    Confidence: {(confidence * 100).toFixed(2)}%
-                  </div>
-                )}
-              </div>
+        <div className={`result-container ${detectedSign ? 'with-letter' : ''}`}>
+          <div className="result">
+            <div className="letter-display">
+              {detectedSign ? (
+                <>
+                  <div className="detected-sign">{detectedSign}</div>
+                  <div className="sign-instruction">Show This Letter</div>
+                  <div className="hand-preference">Use right hand</div>
+                  {confidence !== null && (
+                    <div className="confidence">
+                      Confidence: {(confidence * 100).toFixed(0)}%
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="empty-sign">Waiting for hand sign...</div>
+                  <div className="sign-instruction">Make a hand sign</div>
+                  <div className="hand-preference">Use right hand</div>
+                </>
+              )}
             </div>
-          ) : (
-            <div className="result">
-              <div className="letter-display">
-                <div className="sign-instruction">Make a hand sign</div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
         
         <div className="landmarks-info">
@@ -471,26 +456,18 @@ const DetectionPage = () => {
               <span className="landmarks-inactive">No hand detected</span>
             )}
           </div>
+          {landmarks.length > 0 && (
+            <div className="landmark-count">Tracking {landmarks.length} landmarks</div>
+          )}
         </div>
-        
+
         <div className="instructions">
-          <h3>How to use:</h3>
+          <h3>How to Use</h3>
           <ol>
-            <li>Position your right hand in front of the camera for better detection</li>
-            <li>Make an ASL hand sign</li>
-            <li>Hold the sign steadily until recognized</li>
-            <li>Try to keep your hand in a well-lit area</li>
+            <li>Position your hand in camera view</li>
+            <li>Make a clear ASL sign</li>
+            <li>Hold steady for best results</li>
           </ol>
-        </div>
-        
-        <div className="instructions">
-          <h3>Tips for Better Results:</h3>
-          <ul>
-            <li>Use your right hand facing the camera</li>
-            <li>Keep your entire hand visible in the frame</li>
-            <li>Position your hand against a plain background</li>
-            <li>Avoid rapid movements while signing</li>
-          </ul>
         </div>
       </div>
     </div>

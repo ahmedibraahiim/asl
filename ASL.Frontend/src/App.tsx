@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import {
   Login,
@@ -21,11 +21,26 @@ import './App.css';
 // Layout component that includes Navbar
 const Layout = ({ children, requireAuth = true }: { children: React.ReactNode, requireAuth?: boolean }) => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isDetectionPage = location.pathname === '/detection';
   
   if (requireAuth && !isAuthenticated) {
     return <Navigate to="/login" />;
   }
   
+  // Special case for detection page - no padding/margins
+  if (isDetectionPage) {
+    return (
+      <div className="app-layout detection-page-container">
+        {isAuthenticated && <Navbar />}
+        <main className="app-content detection-page-content">
+          {children}
+        </main>
+      </div>
+    );
+  }
+  
+  // Regular layout for other pages
   return (
     <div className="app-layout">
       {isAuthenticated && <Navbar />}
