@@ -1,5 +1,7 @@
 // Base API URL
 const API_URL = 'http://localhost:5156/api';
+// ASL Recognition API URL
+const ASL_API_URL = 'http://localhost:8000';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
@@ -127,5 +129,44 @@ export const gameApi = {
     });
     
     return handleResponse(response);
+  }
+};
+
+// ASL Recognition API endpoints
+export const aslRecognitionApi = {
+  detectSign: async (imageBase64: string) => {
+    try {
+      console.log('Sending detection request to:', `${ASL_API_URL}/predict/base64`);
+      
+      const response = await fetch(`${ASL_API_URL}/predict/base64`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: imageBase64
+        })
+      });
+      
+      console.log('Detection response status:', response.status);
+      if (!response.ok) {
+        console.log('Detection error response:', await response.clone().text());
+      }
+      
+      return handleResponse(response);
+    } catch (error) {
+      console.error('ASL Recognition API error:', error);
+      throw error;
+    }
+  },
+  
+  checkHealth: async () => {
+    try {
+      const response = await fetch(`${ASL_API_URL}/health`);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('ASL API health check error:', error);
+      throw error;
+    }
   }
 }; 
