@@ -79,13 +79,20 @@ const DetectionPage = () => {
       if (elapsedTime >= LETTER_HOLD_TIME) {
         // If we've reached the hold time, add the letter
         
-        // Determine what to add
-        const isSpace = detectedSign.toLowerCase() === "space";
-        const textToAdd = isSpace ? " " : detectedSign;
-        
-        // Add to sentence
-        setCurrentSentence(prev => prev + textToAdd);
-        console.log(`Added "${textToAdd}" to sentence`);
+        // Check if the sign is "del" to handle backspace functionality
+        if (detectedSign.toLowerCase() === "del") {
+          // Remove the last character from the sentence
+          setCurrentSentence(prev => prev.slice(0, -1));
+          console.log("Deleted last character from sentence");
+        } else {
+          // Determine what to add
+          const isSpace = detectedSign.toLowerCase() === "space";
+          const textToAdd = isSpace ? " " : detectedSign;
+          
+          // Add to sentence
+          setCurrentSentence(prev => prev + textToAdd);
+          console.log(`Added "${textToAdd}" to sentence`);
+        }
         
         // Flash background for visual feedback
         const sentenceElement = document.querySelector('.current-sentence');
