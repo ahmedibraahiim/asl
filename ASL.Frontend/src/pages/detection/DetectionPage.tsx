@@ -394,16 +394,7 @@ const DetectionPage = () => {
 
   return (
     <div className="detection-page">
-      <h1>Real-time ASL Detection</h1>
-      
-      {apiStatus === 'checking' && <p>Checking API status...</p>}
-      {apiStatus === 'offline' && (
-        <div className="alert alert-danger">
-          ASL Recognition API is offline. Detection will not work.
-        </div>
-      )}
-      
-      <div className="detection-container">
+      <div className="video-section">
         <div className="video-container">
           {/* Visible video element */}
           <video 
@@ -429,48 +420,55 @@ const DetectionPage = () => {
           {/* Debug info overlay */}
           <div className="debug-overlay">
             <div>API: {apiStatus}</div>
-            <div>Processing: {processing ? 'Yes' : 'No'}</div>
             <div>Landmarks: {landmarks.length}</div>
           </div>
         </div>
+      </div>
+      
+      <div className="info-section">
+        {apiStatus === 'checking' && <p>Checking API status...</p>}
+        {apiStatus === 'offline' && (
+          <div className="alert alert-danger">
+            ASL Recognition API is offline. Detection will not work.
+          </div>
+        )}
         
         {error && (
-          <div className="alert alert-warning mt-3">
+          <div className="alert alert-warning">
             {error}
           </div>
         )}
         
         <div className="result-container">
-          {detectedSign && (
+          {detectedSign ? (
             <div className="result">
-              <h2>Detected Sign:</h2>
-              <div className="detected-sign">{detectedSign}</div>
-              {confidence !== null && (
-                <div className="confidence">
-                  Confidence: {(confidence * 100).toFixed(2)}%
-                </div>
-              )}
+              <div className="letter-display">
+                <div className="detected-sign">{detectedSign}</div>
+                <div className="sign-instruction">Show This Letter</div>
+                {/* No image for now */}
+                {confidence !== null && (
+                  <div className="confidence">
+                    Confidence: {(confidence * 100).toFixed(2)}%
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="result">
+              <div className="letter-display">
+                <div className="sign-instruction">Make a hand sign</div>
+              </div>
             </div>
           )}
-          
-          <div className="landmarks-info">
-            <h3>Hand Tracking:</h3>
-            <div className="landmarks-status">
-              {landmarks.length > 0 ? (
-                <span className="landmarks-active">Active - {landmarks.length} points detected</span>
-              ) : (
-                <span className="landmarks-inactive">No hand detected</span>
-              )}
-            </div>
-            {landmarks.length > 0 && (
-              <div className="landmark-data">
-                <details>
-                  <summary>First few landmarks (debug)</summary>
-                  <pre>
-                    {JSON.stringify(landmarks.slice(0, 3), null, 2)}
-                  </pre>
-                </details>
-              </div>
+        </div>
+        
+        <div className="landmarks-info">
+          <h3>Hand Tracking</h3>
+          <div className="landmarks-status">
+            {landmarks.length > 0 ? (
+              <span className="landmarks-active">Active - Hand Detected</span>
+            ) : (
+              <span className="landmarks-inactive">No hand detected</span>
             )}
           </div>
         </div>
@@ -478,10 +476,21 @@ const DetectionPage = () => {
         <div className="instructions">
           <h3>How to use:</h3>
           <ol>
-            <li>Position your hand in front of the camera</li>
+            <li>Position your right hand in front of the camera for better detection</li>
             <li>Make an ASL hand sign</li>
-            <li>Hold the sign steadily for better recognition</li>
+            <li>Hold the sign steadily until recognized</li>
+            <li>Try to keep your hand in a well-lit area</li>
           </ol>
+        </div>
+        
+        <div className="instructions">
+          <h3>Tips for Better Results:</h3>
+          <ul>
+            <li>Use your right hand facing the camera</li>
+            <li>Keep your entire hand visible in the frame</li>
+            <li>Position your hand against a plain background</li>
+            <li>Avoid rapid movements while signing</li>
+          </ul>
         </div>
       </div>
     </div>

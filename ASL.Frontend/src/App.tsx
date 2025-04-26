@@ -29,9 +29,9 @@ const Layout = ({ children, requireAuth = true }: { children: React.ReactNode, r
   return (
     <div className="app-layout">
       {isAuthenticated && <Navbar />}
-      <div className="app-content">
+      <main className="app-content">
         {children}
-      </div>
+      </main>
     </div>
   );
 };

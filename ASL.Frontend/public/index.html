@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="margin:0; padding:0; height:100%; width:100%; overflow:hidden;">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -25,10 +25,23 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>ASL Recognition App</title>
+    <style>
+      html, body, #root {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background-color: #121212;
+      }
+      * {
+        box-sizing: border-box;
+      }
+    </style>
   </head>
-  <body>
+  <body style="margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#121212;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root" style="height:100%; width:100%; overflow:hidden;"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
