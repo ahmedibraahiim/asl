@@ -45,11 +45,81 @@ const DetectionPage = () => {
   const [currentSentence, setCurrentSentence] = useState('');
   const [lastDetectedSign, setLastDetectedSign] = useState<string | null>(null);
   const lastDetectedTime = useRef<number>(0);
-  const LETTER_HOLD_TIME = 1000; // 1 second in milliseconds (changed from 1.5s)
+  const LETTER_HOLD_TIME = 1000; // 1 second in milliseconds
   
   // For throttling API calls
   const lastCaptureTime = useRef<number>(0);
   const CAPTURE_INTERVAL = 500; // ms between captures
+
+  // State to track how long the current sign has been held
+  const [signHoldProgress, setSignHoldProgress] = useState(0);
+  
+  // Track detected sign and add to sentence if held for enough time
+  useEffect(() => {
+    if (!buildingSentence || !detectedSign) {
+      // Reset progress when not building sentence or no sign detected
+      setSignHoldProgress(0);
+      return;
+    }
+    
+    // If the sign changed, reset the timer
+    if (detectedSign !== lastDetectedSign) {
+      setLastDetectedSign(detectedSign);
+      lastDetectedTime.current = Date.now();
+      setSignHoldProgress(0);
+      console.log(`New sign detected: ${detectedSign}, timer started`);
+      return;
+    }
+    
+    // Start a simple interval to update the progress bar
+    const progressInterval = setInterval(() => {
+      const now = Date.now();
+      const elapsedTime = now - lastDetectedTime.current;
+      
+      if (elapsedTime >= LETTER_HOLD_TIME) {
+        // If we've reached the hold time, add the letter
+        
+        // Determine what to add
+        const isSpace = detectedSign.toLowerCase() === "space";
+        const textToAdd = isSpace ? " " : detectedSign;
+        
+        // Add to sentence
+        setCurrentSentence(prev => prev + textToAdd);
+        console.log(`Added "${textToAdd}" to sentence`);
+        
+        // Flash background for visual feedback
+        const sentenceElement = document.querySelector('.current-sentence');
+        if (sentenceElement) {
+          sentenceElement.classList.add('letter-added');
+          setTimeout(() => {
+            sentenceElement.classList.remove('letter-added');
+          }, 300);
+        }
+        
+        // CRITICAL PART: Reset for next detection but keep the same sign
+        clearInterval(progressInterval);
+        setSignHoldProgress(0);
+        lastDetectedTime.current = Date.now();
+        
+        // Force a sign change detection cycle by briefly clearing lastDetectedSign
+        const currentSign = detectedSign;
+        setLastDetectedSign(null);
+        setTimeout(() => {
+          setLastDetectedSign(currentSign);
+        }, 100);
+      } else {
+        // Update progress bar normally
+        const progress = (elapsedTime / LETTER_HOLD_TIME) * 100;
+        setSignHoldProgress(progress);
+      }
+    }, 33); // Update more frequently (30 fps) for smoother animation
+    
+    // Clean up interval when component unmounts or dependencies change
+    return () => clearInterval(progressInterval);
+  }, [detectedSign, lastDetectedSign, buildingSentence]);
+  
+  // Remove any other useEffects that might be handling the progress bar
+  // to avoid conflicts
 
   // Check API health when component mounts
   useEffect(() => {
@@ -157,109 +227,6 @@ const DetectionPage = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [buildingSentence]); // Add buildingSentence to dependencies
-  
-  // Track detected sign and add to sentence if held for enough time
-  useEffect(() => {
-    if (!buildingSentence || !detectedSign) return;
-    
-    const now = Date.now();
-    
-    // If the sign changed, reset the timer
-    if (detectedSign !== lastDetectedSign) {
-      setLastDetectedSign(detectedSign);
-      lastDetectedTime.current = now;
-      setSignHoldProgress(0);
-      console.log(`New sign detected: ${detectedSign}, timer started`);
-      return;
-    }
-    
-    // Calculate how long the current sign has been held
-    const heldTime = now - lastDetectedTime.current;
-    
-    // If the same sign is held for LETTER_HOLD_TIME, add it to the sentence
-    if (heldTime >= LETTER_HOLD_TIME && lastDetectedTime.current > 0) {
-      // Determine what to add - convert "Space" to actual space
-      // Make the check case-insensitive to handle different API responses
-      const isSpace = detectedSign.toLowerCase() === "space";
-      const textToAdd = isSpace ? " " : detectedSign;
-      
-      // Add character to sentence
-      setCurrentSentence(prev => prev + textToAdd);
-      console.log(`Added "${isSpace ? "SPACE" : textToAdd}" to sentence`);
-      
-      // Show visual feedback that letter was added
-      setSignHoldProgress(100);
-      
-      // Flash background to show letter was added
-      const sentenceElement = document.querySelector('.current-sentence');
-      if (sentenceElement) {
-        sentenceElement.classList.add('letter-added');
-        setTimeout(() => {
-          sentenceElement.classList.remove('letter-added');
-        }, 300);
-      }
-      
-      // IMPORTANT: Reset timer immediately to allow consecutive letters
-      // Don't use setTimeout here - reset immediately
-      lastDetectedTime.current = now; // Reset to current time
-      setSignHoldProgress(0);
-    } else if (heldTime > 0 && heldTime % 200 < 20) {
-      // Log progress periodically without spamming the console
-      console.log(`Holding "${detectedSign}" for ${Math.floor(heldTime/100)/10}s / 1s`);
-    }
-  }, [detectedSign, buildingSentence, lastDetectedSign]);
-  
-  // Completely reset letter tracking when showing a new sign
-  useEffect(() => {
-    // Only run this effect when detectedSign changes
-    if (!detectedSign) {
-      setSignHoldProgress(0);
-      return;
-    }
-    
-    // When sign changes, do a complete reset
-    if (detectedSign !== lastDetectedSign) {
-      setLastDetectedSign(detectedSign);
-      lastDetectedTime.current = Date.now();
-      setSignHoldProgress(0);
-      console.log(`Sign changed to: ${detectedSign}, completely reset tracking`);
-    }
-  }, [detectedSign]);
-  
-  // Update hold progress for visual feedback
-  useEffect(() => {
-    if (!buildingSentence || !detectedSign) {
-      setSignHoldProgress(0);
-      return;
-    }
-    
-    const updateInterval = 50; // Update progress every 50ms for smooth animation
-    
-    const updateProgress = () => {
-      // If we're not in sentence building mode, stop updating
-      if (!buildingSentence) return;
-      
-      const now = Date.now();
-      const heldTime = now - lastDetectedTime.current;
-      
-      // Skip progress update if timer is not positive (during reset period)
-      if (lastDetectedTime.current <= 0) return;
-      
-      // Calculate progress percentage (0-100)
-      const progress = Math.min(100, (heldTime / LETTER_HOLD_TIME) * 100);
-      setSignHoldProgress(progress);
-      
-      // Continue updating if we haven't reached 100%
-      if (progress < 100) {
-        setTimeout(updateProgress, updateInterval);
-      }
-    };
-    
-    // Start progress updates
-    const timer = setTimeout(updateProgress, updateInterval);
-    
-    return () => clearTimeout(timer);
-  }, [detectedSign, lastDetectedSign, buildingSentence]);
 
   // Custom display for signs
   const getDisplayText = (sign: string | null): string => {
@@ -274,9 +241,6 @@ const DetectionPage = () => {
     setCurrentSentence('');
   };
 
-  // State to track how long the current sign has been held
-  const [signHoldProgress, setSignHoldProgress] = useState(0);
-  
   // Function to continuously render video frames to canvas
   const renderVideoFrame = () => {
     const drawFrame = () => {
