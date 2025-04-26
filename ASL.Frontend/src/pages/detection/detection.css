@@ -24,6 +24,7 @@
 .webcam-video {
   width: 100%;
   display: block;
+  transform: scaleX(-1); /* Flip the video element itself for preview */
 }
 
 .landmark-canvas {

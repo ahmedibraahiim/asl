@@ -144,8 +144,11 @@ const DetectionPage = () => {
       // Clear the canvas before drawing
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw video frame
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      // Flip horizontally to fix mirror effect
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(videoRef.current, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
       
       // Draw landmarks if available
       if (landmarks && landmarks.length > 0) {
@@ -178,7 +181,7 @@ const DetectionPage = () => {
   const drawLandmarksOnCanvas = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     if (!landmarks || landmarks.length === 0) return;
     
-    // Scaling the landmarks to canvas size
+    // Scaling the landmarks to canvas size and applying horizontal flip
     const scaleX = width;
     const scaleY = height;
     
@@ -213,7 +216,8 @@ const DetectionPage = () => {
     // Helper function to draw a small circle at a point
     const drawCircle = (x: number, y: number, radius: number, color: string) => {
       ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      // Flip x-coordinate to match the flipped video
+      ctx.arc(width - x, y, radius, 0, 2 * Math.PI);
       ctx.fillStyle = color;
       ctx.fill();
       
@@ -232,9 +236,10 @@ const DetectionPage = () => {
     // Draw connections with gradient colors between connected landmarks
     for (const [start, end] of HAND_CONNECTIONS) {
       if (landmarks[start] && landmarks[end]) {
-        const startX = landmarks[start].x * scaleX;
+        // Calculate flipped coordinates
+        const startX = width - (landmarks[start].x * scaleX);
         const startY = landmarks[start].y * scaleY;
-        const endX = landmarks[end].x * scaleX;
+        const endX = width - (landmarks[end].x * scaleX);
         const endY = landmarks[end].y * scaleY;
         
         // Create gradient for connections
@@ -274,19 +279,27 @@ const DetectionPage = () => {
     
     // Draw landmarks with different colors for each finger (smaller circles)
     for (const landmark of landmarks) {
+      // Use the drawCircle helper which handles the flipping
       drawCircle(
         landmark.x * scaleX,
         landmark.y * scaleY,
         landmark.index === 0 ? 5 : 3, // Much smaller radius for better visibility
         getLandmarkColor(landmark.index)
       );
-      
-      // No inner circles for cleaner look
     }
     
     // Draw intermediate points (even smaller than main landmark points)
     for (const point of intermediatePoints) {
-      drawCircle(point.x, point.y, 2, point.color);
+      // No need to flip here as the points are already calculated with flipped coordinates
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+      ctx.fillStyle = point.color;
+      ctx.fill();
+      
+      // Add a thin white border
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
 
     // Add debug information to check if landmarks are being drawn
@@ -328,6 +341,7 @@ const DetectionPage = () => {
       canvas.height = video.videoHeight;
       
       // Draw the current video frame onto the canvas
+      // Note: we don't flip the processing canvas as the API processes it correctly as is
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
       // Convert canvas image to base64 (removing the data:image/png;base64, prefix)
