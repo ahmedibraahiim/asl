@@ -139,12 +139,14 @@ body, html {
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
 .result {
   width: 100%;
   padding: 5px 0;
   text-align: center;
+  position: relative;
 }
 
 .letter-display {
@@ -173,16 +175,16 @@ body, html {
 }
 
 .detected-sign {
-  font-size: 5.5rem;
+  font-size: 6.5rem;
   font-weight: bold;
   color: #ffc107;
   margin: 0;
   line-height: 1.2;
-  height: 100px;
+  height: 160px; /* Increased height since this is the only element now */
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+  text-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
   animation: letterAppear 0.3s ease-out;
   transition: all 0.3s ease;
 }
@@ -208,12 +210,13 @@ body, html {
   }
 }
 
+/* Show hand preference only in waiting state */
 .hand-preference {
   font-size: 0.85rem;
   color: #fff;
-  margin-top: 8px;
-  padding: 5px 12px;
-  background-color: rgba(255, 193, 7, 0.2);
+  margin: 0 auto;
+  padding: 6px 14px;
+  background-color: rgba(255, 193, 7, 0.25);
   border-radius: 20px;
   display: inline-block;
   border: 1px solid rgba(255, 193, 7, 0.4);
@@ -221,6 +224,7 @@ body, html {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   animation: subtle-pulse 2s infinite;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .hand-preference:hover {
@@ -233,17 +237,54 @@ body, html {
   opacity: 0.9;
 }
 
+/* Repositioned confidence display for hand tracking box */
 .confidence {
-  font-size: 0.8rem;
-  color: #b0b0b0;
-  margin-top: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 12px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-size: 0.85rem;
+  color: #d0d0d0;
+  margin: 8px 0 0 0;
+  padding: 5px 10px 5px 14px; /* Align with the status indicator */
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-weight: 500;
 }
 
-.landmarks-info, .instructions {
+/* Add an indicator before confidence */
+.confidence::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #ffc107;
+  border-radius: 50%;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+
+.landmark-count {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+  margin-top: 5px;
+  padding-left: 14px; /* Align with the status indicator */
+  display: flex;
+  align-items: center;
+}
+
+/* Add icon for landmark count */
+.landmark-count::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #3f83f8;
+  border-radius: 50%;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+
+.landmarks-info {
   width: 100%;
   padding: 12px;
   background: linear-gradient(to bottom, rgba(40, 40, 40, 0.5), rgba(30, 30, 30, 0.5));
@@ -251,9 +292,10 @@ body, html {
   margin: 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-.landmarks-info h3, .instructions h3 {
+.landmarks-info h3 {
   margin-top: 0;
   margin-bottom: 8px;
   color: #fefefe;
@@ -265,8 +307,8 @@ body, html {
 }
 
 .landmarks-status {
-  font-size: 0.9rem;
-  padding: 5px 0;
+  display: flex;
+  align-items: center;
 }
 
 .landmarks-active {
@@ -301,6 +343,16 @@ body, html {
   background-color: #f44336;
   border-radius: 50%;
   margin-right: 6px;
+}
+
+.instructions {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(to bottom, rgba(40, 40, 40, 0.5), rgba(30, 30, 30, 0.5));
+  border-radius: 8px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .instructions ol {
@@ -426,13 +478,6 @@ hr,
   transition: all 0.2s ease;
 }
 
-.landmark-count {
-  font-size: 0.75rem;
-  color: #a0a0a0;
-  margin-top: 5px;
-  padding-left: 14px; /* Align with the status indicator */
-}
-
 /* Additional enhancements for the different states */
 .result-container.with-letter {
   background: linear-gradient(to bottom, rgba(60, 60, 40, 0.7), rgba(40, 40, 20, 0.7));
@@ -448,6 +493,7 @@ hr,
   opacity: 0.3;
   font-size: 0.9rem;
   color: #a0a0a0;
+  margin-bottom: 15px;
 }
 
 @media (max-width: 768px) {
@@ -472,4 +518,16 @@ hr,
   .hand-illustration {
     height: 80px;
   }
+}
+
+/* Fix missing styling for instructions headings */
+.instructions h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #fefefe;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
 } 

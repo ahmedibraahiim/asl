@@ -428,18 +428,10 @@ const DetectionPage = () => {
               {detectedSign ? (
                 <>
                   <div className="detected-sign">{detectedSign}</div>
-                  <div className="sign-instruction">Show This Letter</div>
-                  <div className="hand-preference">Use right hand</div>
-                  {confidence !== null && (
-                    <div className="confidence">
-                      Confidence: {(confidence * 100).toFixed(0)}%
-                    </div>
-                  )}
                 </>
               ) : (
                 <>
                   <div className="empty-sign">Waiting for hand sign...</div>
-                  <div className="sign-instruction">Make a hand sign</div>
                   <div className="hand-preference">Use right hand</div>
                 </>
               )}
@@ -457,7 +449,14 @@ const DetectionPage = () => {
             )}
           </div>
           {landmarks.length > 0 && (
-            <div className="landmark-count">Tracking {landmarks.length} landmarks</div>
+            <>
+              {confidence !== null && (
+                <div className="confidence">
+                  Confidence: {(confidence * 100).toFixed(0)}%
+                </div>
+              )}
+              <div className="landmark-count">Tracking {landmarks.length} landmarks</div>
+            </>
           )}
         </div>
 
