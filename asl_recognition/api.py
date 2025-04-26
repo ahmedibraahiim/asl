@@ -11,8 +11,9 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 import os
 
-from asl_recognition.utils.landmark_extraction import extract_landmarks, normalize_landmarks
-from asl_recognition.models.classifier import ASLClassifier
+# Use relative imports
+from utils.landmark_extraction import extract_landmarks, normalize_landmarks
+from models.classifier import ASLClassifier
 
 # Initialize FastAPI app
 app = FastAPI(
