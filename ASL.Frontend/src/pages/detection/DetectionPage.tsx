@@ -90,6 +90,7 @@ const DetectionPage = () => {
     };
 
     setupWebcam();
+    console.log("Webcam setup initialized");
 
     // Cleanup function to stop webcam when unmounting
     return () => {
@@ -109,27 +110,49 @@ const DetectionPage = () => {
     };
   }, []);
   
+  // Restart rendering when landmarks change
+  useEffect(() => {
+    if (landmarks.length > 0) {
+      console.log("Landmarks updated, restarting rendering");
+      startRenderingFrames();
+    }
+  }, [landmarks]);
+  
   // Function to continuously render video frames to canvas
   const renderVideoFrame = () => {
     const drawFrame = () => {
-      if (!videoRef.current || !canvasRef.current) return;
+      if (!videoRef.current || !canvasRef.current) {
+        console.log("Missing video or canvas reference");
+        renderFrameRef.current = requestAnimationFrame(drawFrame);
+        return;
+      }
       
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (!ctx) {
+        console.error("Failed to get 2D context");
+        return;
+      }
       
       // Ensure canvas is the right size
       if (canvas.width !== videoRef.current.videoWidth || canvas.height !== videoRef.current.videoHeight) {
+        console.log(`Resizing canvas to ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
       }
+      
+      // Clear the canvas before drawing
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw video frame
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       
       // Draw landmarks if available
       if (landmarks && landmarks.length > 0) {
+        console.log(`Rendering ${landmarks.length} landmarks on canvas`);
         drawLandmarksOnCanvas(ctx, canvas.width, canvas.height);
+      } else {
+        console.log("No landmarks to draw");
       }
       
       // Schedule next frame
@@ -137,6 +160,7 @@ const DetectionPage = () => {
     };
     
     // Start the rendering loop
+    console.log("Starting render frame loop");
     renderFrameRef.current = requestAnimationFrame(drawFrame);
   };
   
@@ -158,38 +182,117 @@ const DetectionPage = () => {
     const scaleX = width;
     const scaleY = height;
     
-    // Draw landmarks
-    for (const landmark of landmarks) {
+    // Remove duplicate clearRect - we already cleared in renderVideoFrame
+    // ctx.clearRect(0, 0, width, height);
+    
+    // Optional: Add shadow for a glow effect (use smaller blur for thinner lines)
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+    ctx.shadowBlur = 2;
+    
+    // Color mapping for different landmark groups
+    const colors = {
+      thumb: 'rgba(255, 0, 0, 0.9)',        // Red for thumb
+      indexFinger: 'rgba(0, 255, 0, 0.9)',  // Green for index finger
+      middleFinger: 'rgba(0, 0, 255, 0.9)', // Blue for middle finger
+      ringFinger: 'rgba(255, 255, 0, 0.9)', // Yellow for ring finger
+      pinky: 'rgba(255, 0, 255, 0.9)',      // Purple for pinky
+      wrist: 'rgba(255, 255, 255, 0.9)'     // White for wrist/palm
+    };
+    
+    // Get color for a landmark based on its index
+    const getLandmarkColor = (index: number): string => {
+      if (index === 0) return colors.wrist;
+      if (index >= 1 && index <= 4) return colors.thumb;
+      if (index >= 5 && index <= 8) return colors.indexFinger;
+      if (index >= 9 && index <= 12) return colors.middleFinger;
+      if (index >= 13 && index <= 16) return colors.ringFinger;
+      if (index >= 17 && index <= 20) return colors.pinky;
+      return 'rgba(0, 255, 0, 0.9)'; // Default color
+    };
+    
+    // Helper function to draw a small circle at a point
+    const drawCircle = (x: number, y: number, radius: number, color: string) => {
       ctx.beginPath();
-      ctx.arc(
-        landmark.x * scaleX,
-        landmark.y * scaleY,
-        6, // radius
-        0,
-        2 * Math.PI
-      );
-      ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
       ctx.fill();
-    }
+      
+      // Add a thin white border
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    };
     
-    // Draw connections
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    // Draw connections first so they appear behind landmarks
+    ctx.lineWidth = 2; // Thinner lines
     
+    // Store intermediate points for later drawing
+    const intermediatePoints: Array<{x: number, y: number, color: string}> = [];
+    
+    // Draw connections with gradient colors between connected landmarks
     for (const [start, end] of HAND_CONNECTIONS) {
       if (landmarks[start] && landmarks[end]) {
+        const startX = landmarks[start].x * scaleX;
+        const startY = landmarks[start].y * scaleY;
+        const endX = landmarks[end].x * scaleX;
+        const endY = landmarks[end].y * scaleY;
+        
+        // Create gradient for connections
+        const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+        gradient.addColorStop(0, getLandmarkColor(landmarks[start].index));
+        gradient.addColorStop(1, getLandmarkColor(landmarks[end].index));
+        
         ctx.beginPath();
-        ctx.moveTo(
-          landmarks[start].x * scaleX, 
-          landmarks[start].y * scaleY
-        );
-        ctx.lineTo(
-          landmarks[end].x * scaleX, 
-          landmarks[end].y * scaleY
-        );
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = gradient;
         ctx.stroke();
+        
+        // Calculate points at 30% and 70% along the line
+        const point30X = startX + (endX - startX) * 0.3;
+        const point30Y = startY + (endY - startY) * 0.3;
+        const point70X = startX + (endX - startX) * 0.7;
+        const point70Y = startY + (endY - startY) * 0.7;
+        
+        // Store intermediate points for drawing later
+        intermediatePoints.push({
+          x: point30X, 
+          y: point30Y, 
+          color: getLandmarkColor(landmarks[start].index)
+        });
+        
+        intermediatePoints.push({
+          x: point70X, 
+          y: point70Y, 
+          color: getLandmarkColor(landmarks[end].index)
+        });
       }
     }
+    
+    // Remove shadow for the landmark dots
+    ctx.shadowBlur = 0;
+    
+    // Draw landmarks with different colors for each finger (smaller circles)
+    for (const landmark of landmarks) {
+      drawCircle(
+        landmark.x * scaleX,
+        landmark.y * scaleY,
+        landmark.index === 0 ? 5 : 3, // Much smaller radius for better visibility
+        getLandmarkColor(landmark.index)
+      );
+      
+      // No inner circles for cleaner look
+    }
+    
+    // Draw intermediate points (even smaller than main landmark points)
+    for (const point of intermediatePoints) {
+      drawCircle(point.x, point.y, 2, point.color);
+    }
+
+    // Add debug information to check if landmarks are being drawn
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.fillText(`Drawing ${landmarks.length} landmarks with intermediate points`, 10, 20);
   };
 
   // Process frame and update ui continuously
@@ -236,12 +339,14 @@ const DetectionPage = () => {
       console.log("API response:", result);
       
       if (result.has_hand) {
+        console.log("Hand detected with", result.landmarks.length, "landmarks");
         setDetectedSign(result.sign);
         setConfidence(result.confidence);
         setLandmarks(result.landmarks);
         setError(null);
       } else {
         // Only clear sign if no hand is detected
+        console.log("No hand detected in the frame");
         setDetectedSign(null);
         setConfidence(null);
         setLandmarks([]);
@@ -306,6 +411,13 @@ const DetectionPage = () => {
             ref={processingCanvasRef}
             style={{ display: 'none' }}
           />
+          
+          {/* Debug info overlay */}
+          <div className="debug-overlay">
+            <div>API: {apiStatus}</div>
+            <div>Processing: {processing ? 'Yes' : 'No'}</div>
+            <div>Landmarks: {landmarks.length}</div>
+          </div>
         </div>
         
         {error && (
@@ -314,17 +426,40 @@ const DetectionPage = () => {
           </div>
         )}
         
-        {detectedSign && (
-          <div className="result">
-            <h2>Detected Sign:</h2>
-            <div className="detected-sign">{detectedSign}</div>
-            {confidence !== null && (
-              <div className="confidence">
-                Confidence: {(confidence * 100).toFixed(2)}%
+        <div className="result-container">
+          {detectedSign && (
+            <div className="result">
+              <h2>Detected Sign:</h2>
+              <div className="detected-sign">{detectedSign}</div>
+              {confidence !== null && (
+                <div className="confidence">
+                  Confidence: {(confidence * 100).toFixed(2)}%
+                </div>
+              )}
+            </div>
+          )}
+          
+          <div className="landmarks-info">
+            <h3>Hand Tracking:</h3>
+            <div className="landmarks-status">
+              {landmarks.length > 0 ? (
+                <span className="landmarks-active">Active - {landmarks.length} points detected</span>
+              ) : (
+                <span className="landmarks-inactive">No hand detected</span>
+              )}
+            </div>
+            {landmarks.length > 0 && (
+              <div className="landmark-data">
+                <details>
+                  <summary>First few landmarks (debug)</summary>
+                  <pre>
+                    {JSON.stringify(landmarks.slice(0, 3), null, 2)}
+                  </pre>
+                </details>
               </div>
             )}
           </div>
-        )}
+        </div>
         
         <div className="instructions">
           <h3>How to use:</h3>
