@@ -49,7 +49,7 @@ const DetectionPage = () => {
   
   // For throttling API calls
   const lastCaptureTime = useRef<number>(0);
-  const CAPTURE_INTERVAL = 500; // ms between captures
+  const CAPTURE_INTERVAL = 150; // ms between captures
 
   // State to track how long the current sign has been held
   const [signHoldProgress, setSignHoldProgress] = useState(0);
