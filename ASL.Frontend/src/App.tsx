@@ -5,10 +5,10 @@ import {
   Register,
   DetectionPage,
   AtoFExercise,
-  GtoKExercise,
-  LtoPExercise,
-  QtoUExercise,
-  VtoZExercise,
+  // GtoKExercise,
+  // LtoPExercise,
+  // QtoUExercise,
+  // VtoZExercise,
   ExercisesPage,
   DictionaryPage,
   CreateMatch,
@@ -89,7 +89,8 @@ const App = () => {
             </Layout>
           } 
         />
-        <Route 
+        {/* TODO: Add the other exercises */}
+        {/* <Route 
           path="/exercises/g-k" 
           element={
             <Layout>
@@ -121,7 +122,7 @@ const App = () => {
             </Layout>
           } 
         />
-        
+         */}
         {/* Dictionary Route */}
         <Route 
           path="/dictionary" 
