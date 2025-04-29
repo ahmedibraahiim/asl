@@ -3,7 +3,7 @@ import { predictFromBase64, checkAPIHealth } from '../../services/aToFApiService
 import './exercises.css';
 
 // Import images directly
-import checkmarkIcon from '../../assets/icon/done-256.svg';
+import checkmarkIcon from '../../assets/icon/done-128.svg';
 import AhandImg from '../../assets/asl_alphabets/Ahand.svg';
 import BhandImg from '../../assets/asl_alphabets/Bhand.svg';
 import ChandImg from '../../assets/asl_alphabets/Chand.svg';
@@ -470,10 +470,37 @@ const AtoFExercise = () => {
     return letterImages[currentSign as keyof typeof letterImages];
   };
 
+  // Update the useEffect to hide all scrollbars
+  useEffect(() => {
+    // Add style to hide scrollbar
+    const style = document.createElement('style');
+    style.textContent = `
+      .exercise-page::-webkit-scrollbar,
+      .exercise-container::-webkit-scrollbar,
+      .exercise-sidebar::-webkit-scrollbar,
+      *::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+      .exercise-page,
+      .exercise-container,
+      .exercise-sidebar,
+      * {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <div className="exercise-page a-to-f-exercise">
       <div className="exercise-header">
-        <h1>A to F Exercise</h1>
         <p className="description">
           Practice American Sign Language alphabet letters A through F. 
           Position your hand clearly in front of the camera and try to match each letter.
@@ -501,29 +528,19 @@ const AtoFExercise = () => {
                 style={{ display: showDebug ? 'block' : 'none', position: 'absolute', top: 0, left: 0, opacity: 0.5 }}
               />
               
-              <div className="debug-overlay">
-                <div>API: {apiStatus} {!apiStable && <span style={{color: 'orange'}}>(unstable)</span>}</div>
-                {confidence !== null && <div>Confidence: {(confidence * 100).toFixed(0)}%</div>}
-                {apiErrorCount > 0 && <div>Errors: {apiErrorCount}</div>}
-                <button 
-                  onClick={() => setShowDebug(!showDebug)} 
-                  style={{ background: 'none', border: '1px solid white', color: 'white', padding: '2px 5px', cursor: 'pointer' }}
-                >
-                  {showDebug ? 'Hide Debug' : 'Show Debug'}
-                </button>
-                <div>
-                  <p style={{ color: '#ffff00', margin: '5px 0' }}>
-                    Tips for hand detection:
-                  </p>
-                  <ul style={{ color: '#ffffff', fontSize: '12px', padding: '0 0 0 20px', margin: '0' }}>
-                    <li>Good lighting on your hand</li>
-                    <li>Hold hand 1-2 feet from camera</li>
-                    <li>Keep hand in center of view</li>
-                    <li>Use a plain background</li>
-                    <li>Form clear, distinct shapes</li>
-                  </ul>
+              {showDebug && (
+                <div className="debug-overlay">
+                  <div>API: {apiStatus} {!apiStable && <span style={{color: 'orange'}}>(unstable)</span>}</div>
+                  {confidence !== null && <div>Confidence: {(confidence * 100).toFixed(0)}%</div>}
+                  {apiErrorCount > 0 && <div>Errors: {apiErrorCount}</div>}
+                  <button 
+                    onClick={() => setShowDebug(!showDebug)} 
+                    style={{ background: 'none', border: '1px solid white', color: 'white', padding: '2px 5px', cursor: 'pointer' }}
+                  >
+                    {showDebug ? 'Hide Debug' : 'Show Debug'}
+                  </button>
                 </div>
-              </div>
+              )}
             </div>
 
             {apiStatus === 'offline' && (
@@ -559,73 +576,195 @@ const AtoFExercise = () => {
               </div>
             ) : (
               <>
-                <div className="current-letter-container">
-                  <h2>Current Letter</h2>
-                  <div className="letter-display">
-                    <div className="current-letter">
-                      <div className="letter-image-container">
-                        <div 
-                          className="letter-image"
-                          style={{ backgroundImage: `url(${getCurrentLetterImage()})` }}
-                        ></div>
-                      </div>
-                      <div className="letter-label">{currentSign}</div>
-                    </div>
-                  </div>
+                <div className="current-letter-container" style={{ 
+                  backgroundColor: '#222',
+                  borderRadius: '12px',
+                  padding: '25px',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(249, 191, 46, 0.3)',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '20px'
+                }}>
+                  <h2 style={{ 
+                    margin: '0',
+                    textAlign: 'center',
+                    fontSize: '24px',
+                    fontWeight: '600',
+                    color: '#f9bf2e'
+                  }}>
+                    Current Letter: <span style={{ fontSize: '28px', marginLeft: '5px' }}>{currentSign}</span>
+                  </h2>
                   
-                  {isCorrect && (
-                    <div className="progress-container">
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-bar-fill" 
-                          style={{ width: `${signHoldProgress}%` }}
-                        ></div>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '25px'
+                  }}>
+                    <div className="letter-image-container" 
+                      style={{
+                        width: '170px',
+                        height: '170px',
+                        backgroundColor: 'transparent',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative',
+                      }}
+                    >
+                      <img 
+                        src={getCurrentLetterImage()}
+                        alt={`Sign for letter ${currentSign}`}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          display: 'block',
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                        }}
+                      />
+                    </div>
+                    
+                    <div style={{ width: '100%' }}>
+                      <div className="letters-progress" style={{ 
+                        backgroundColor: '#1a1a1a',
+                        borderRadius: '8px',
+                        padding: '15px 20px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        marginBottom: '20px'
+                      }}>
+                        <h3 style={{ 
+                          margin: '0 0 15px 0',
+                          fontSize: '18px',
+                          fontWeight: '500',
+                          color: '#e0e0e0',
+                          textAlign: 'center'
+                        }}>Progress</h3>
+                        <div className="letter-sequence" style={{ 
+                          display: 'flex', 
+                          justifyContent: 'center', 
+                          gap: '12px' 
+                        }}>
+                          {letters.map((letter, index) => {
+                            const isCompleted = completedLetters.includes(letter);
+                            const isCurrent = index === currentLetterIndex;
+                            
+                            return (
+                              <div 
+                                key={letter}
+                                className={`sequence-letter ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}`}
+                                style={{ 
+                                  position: 'relative',
+                                  width: '42px', 
+                                  height: '42px',
+                                  borderRadius: '50%',
+                                  backgroundColor: isCurrent ? '#f9bf2e' : isCompleted ? '#32BEA6' : '#2a2a2a',
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  color: isCurrent || isCompleted ? '#ffffff' : '#888888',
+                                  fontWeight: 'bold',
+                                  fontSize: '18px',
+                                  transition: 'all 0.3s ease',
+                                  border: isCurrent ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.1)',
+                                  boxShadow: isCurrent ? '0 0 10px rgba(249, 191, 46, 0.5)' : 'none'
+                                }}
+                              >
+                                {isCompleted ? (
+                                  <img 
+                                    src={checkmarkIcon} 
+                                    alt="Completed" 
+                                    className="completed-icon"
+                                    style={{
+                                      width: '24px',
+                                      height: '24px',
+                                      position: 'absolute',
+                                      top: '50%',
+                                      left: '50%',
+                                      transform: 'translate(-50%, -50%)'
+                                    }}
+                                  />
+                                ) : (
+                                  letter
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="progress-label">
-                        Hold the sign for 1 second
+                      
+                      <div className="progress-container">
+                        <div className="progress-bar" style={{ 
+                          backgroundColor: 'rgba(255,255,255,0.08)', 
+                          borderRadius: '10px', 
+                          height: '12px',
+                          overflow: 'hidden',
+                          width: '100%',
+                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
+                        }}>
+                          <div 
+                            className="progress-bar-fill" 
+                            style={{ 
+                              width: isCorrect ? `${signHoldProgress}%` : '0%',
+                              height: '100%',
+                              backgroundColor: '#32BEA6',
+                              backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)',
+                              backgroundSize: '20px 20px',
+                              borderRadius: '10px',
+                              transition: 'width 0.1s ease-in-out',
+                              boxShadow: '0 0 8px rgba(50, 190, 166, 0.5)'
+                            }}
+                          ></div>
+                        </div>
+                        <div className="progress-label" style={{ 
+                          textAlign: 'center', 
+                          marginTop: '10px',
+                          fontSize: '14px',
+                          color: '#32BEA6',
+                          fontWeight: '500'
+                        }}>
+                          Hold the sign for 1 second
+                        </div>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
                 
-                <div className="letters-progress">
-                  <h3>Progress</h3>
-                  <div className="letter-sequence">
-                    {letters.map((letter, index) => (
-                      <div 
-                        key={letter}
-                        className={`sequence-letter ${index === currentLetterIndex ? 'current' : ''} ${completedLetters.includes(letter) ? 'completed' : ''}`}
-                      >
-                        {completedLetters.includes(letter) ? (
-                          <img 
-                            src={checkmarkIcon} 
-                            alt="Completed" 
-                            className="completed-icon"
-                            width="24"
-                            height="24"
-                          />
-                        ) : (
-                          letter
-                        )}
-                      </div>
+                <div className="instructions" style={{ 
+                  backgroundColor: '#222',
+                  borderRadius: '12px',
+                  padding: '25px',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(249, 191, 46, 0.3)'
+                }}>
+                  <h3 style={{ 
+                    margin: '0 0 15px 0',
+                    color: '#f9bf2e',
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    textAlign: 'center'
+                  }}>Instructions</h3>
+                  <ol style={{
+                    margin: '0',
+                    padding: '0 0 0 25px',
+                    color: '#e0e0e0'
+                  }}>
+                    {[
+                      'Position your hand clearly in front of the camera',
+                      'Form the sign shown in the current letter box',
+                      'Hold the correct sign for 1 second to advance',
+                      'Complete all letters from A to F to finish the exercise'
+                    ].map((instruction, index) => (
+                      <li key={index} style={{
+                        marginBottom: index < 3 ? '12px' : '0',
+                        paddingLeft: '5px',
+                        lineHeight: '1.4'
+                      }}>
+                        {instruction}
+                      </li>
                     ))}
-                  </div>
-                </div>
-                
-                <div className="detected-sign">
-                  <h3>Detected Sign</h3>
-                  <div className={`sign-display ${isCorrect ? 'correct' : ''}`}>
-                    {detectedSign ? detectedSign : 'No sign detected'}
-                  </div>
-                </div>
-                
-                <div className="instructions">
-                  <h3>Instructions</h3>
-                  <ol>
-                    <li>Position your hand clearly in front of the camera</li>
-                    <li>Form the sign shown in the current letter box</li>
-                    <li>Hold the correct sign for 1 second to advance</li>
-                    <li>Complete all letters from A to F to finish the exercise</li>
                   </ol>
                 </div>
               </>
