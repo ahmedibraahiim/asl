@@ -10,15 +10,25 @@ import uvicorn
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 import os
+import sys
 
-# Use relative imports
-from asl_recognition.utils.landmark_extraction import extract_landmarks, normalize_landmarks
-from asl_recognition.models.a_to_f_classifier import ASLAtoFClassifier
+# Add the parent directory to the path for direct execution
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+# Use relative imports when running as a module or absolute when running directly
+try:
+    from utils.landmark_extraction import extract_landmarks, normalize_landmarks
+    from models.a_to_f_classifier import ASLAtoFClassifier
+except ImportError:
+    from asl_recognition.utils.landmark_extraction import extract_landmarks, normalize_landmarks
+    from asl_recognition.models.a_to_f_classifier import ASLAtoFClassifier
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="ASL A-to-F Recognition API",
-    description="API for recognizing American Sign Language letters A through F from images",
+    title="ASL A-F Recognition API",
+    description="API for recognizing American Sign Language signs A through F from images",
     version="1.0.0"
 )
 
@@ -36,7 +46,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     static_image_mode=True,
     max_num_hands=1,
-    min_detection_confidence=0.5
+    min_detection_confidence=0.5  # Same as in api.py
 )
 
 # Initialize the ASL classifier
@@ -115,7 +125,43 @@ async def predict_sign(file: UploadFile = File(...)):
         normalized_landmarks = normalize_landmarks(landmarks_array)
         
         # Make prediction
-        label, confidence = classifier.predict(normalized_landmarks)
+        try:
+            if not hasattr(classifier, 'model') or classifier.model is None:
+                print("ERROR: Model is not loaded properly")
+                return {
+                    "sign": "error",
+                    "confidence": 0.0,
+                    "landmarks": [],
+                    "has_hand": True,
+                    "is_a_to_f": False
+                }
+            
+            print(f"Making prediction with normalized landmarks shape: {normalized_landmarks.shape}")
+            label, confidence = classifier.predict(normalized_landmarks)
+            
+            # Handle numeric labels by converting to letters (0-5 -> A-F)
+            if label.isdigit():
+                num_label = int(label)
+                if 0 <= num_label <= 5:
+                    # Map 0->A, 1->B, 2->C, 3->D, 4->E, 5->F
+                    letter_map = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F'}
+                    label = letter_map[num_label]
+                    print(f"Mapped numeric label {num_label} to letter {label}")
+            
+            # Check if the predicted sign is in A-F range
+            is_a_to_f = label.upper() in ["A", "B", "C", "D", "E", "F"]
+            print(f"Is A-F sign: {is_a_to_f}")
+        except Exception as e:
+            print(f"Prediction error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return {
+                "sign": "error",
+                "confidence": 0.0,
+                "landmarks": [],
+                "has_hand": True,
+                "is_a_to_f": False
+            }
         
         # Format landmarks for response
         landmarks_list = []
@@ -132,7 +178,7 @@ async def predict_sign(file: UploadFile = File(...)):
             "confidence": float(confidence),
             "landmarks": landmarks_list,
             "has_hand": True,
-            "is_a_to_f": True
+            "is_a_to_f": is_a_to_f
         }
     
     except Exception as e:
@@ -145,7 +191,7 @@ class Base64ImageRequest(BaseModel):
 @app.post("/predict/base64", response_model=PredictionResponse)
 async def predict_sign_base64(request: Base64ImageRequest):
     try:
-        # Decode base64 image
+        # Decode base64 image - identical to api.py
         image_data = base64.b64decode(request.image)
         nparr = np.frombuffer(image_data, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -178,7 +224,43 @@ async def predict_sign_base64(request: Base64ImageRequest):
         normalized_landmarks = normalize_landmarks(landmarks_array)
         
         # Make prediction
-        label, confidence = classifier.predict(normalized_landmarks)
+        try:
+            if not hasattr(classifier, 'model') or classifier.model is None:
+                print("ERROR: Model is not loaded properly")
+                return {
+                    "sign": "error",
+                    "confidence": 0.0,
+                    "landmarks": [],
+                    "has_hand": True,
+                    "is_a_to_f": False
+                }
+            
+            print(f"Making prediction with normalized landmarks shape: {normalized_landmarks.shape}")
+            label, confidence = classifier.predict(normalized_landmarks)
+            
+            # Handle numeric labels by converting to letters (0-5 -> A-F)
+            if label.isdigit():
+                num_label = int(label)
+                if 0 <= num_label <= 5:
+                    # Map 0->A, 1->B, 2->C, 3->D, 4->E, 5->F
+                    letter_map = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F'}
+                    label = letter_map[num_label]
+                    print(f"Mapped numeric label {num_label} to letter {label}")
+            
+            # Check if the predicted sign is in A-F range
+            is_a_to_f = label.upper() in ["A", "B", "C", "D", "E", "F"]
+            print(f"Is A-F sign: {is_a_to_f}")
+        except Exception as e:
+            print(f"Prediction error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return {
+                "sign": "error",
+                "confidence": 0.0,
+                "landmarks": [],
+                "has_hand": True,
+                "is_a_to_f": False
+            }
         
         # Format landmarks for response
         landmarks_list = []
@@ -195,7 +277,7 @@ async def predict_sign_base64(request: Base64ImageRequest):
             "confidence": float(confidence),
             "landmarks": landmarks_list,
             "has_hand": True,
-            "is_a_to_f": True
+            "is_a_to_f": is_a_to_f
         }
     
     except Exception as e:
@@ -203,4 +285,14 @@ async def predict_sign_base64(request: Base64ImageRequest):
 
 # Run the server
 if __name__ == "__main__":
-    uvicorn.run("asl_recognition.a_to_f_api:app", host="0.0.0.0", port=8001, reload=True) 
+    import os
+    import sys
+    
+    # Add the parent directory to the path for direct execution
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if parent_dir not in sys.path:
+        sys.path.append(parent_dir)
+        print(f"Added {parent_dir} to Python path")
+    
+    print(f"Starting A-to-F API server on http://0.0.0.0:8001")
+    uvicorn.run(app, host="0.0.0.0", port=8001)

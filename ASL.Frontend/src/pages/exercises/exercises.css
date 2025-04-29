@@ -1,0 +1,509 @@
+/* Common exercise styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+/* Exercises Page Styles */
+.exercises-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.exercise-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.exercise-section-card {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exercise-section-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.section-image {
+  width: 180px;
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.section-image img {
+  width: 100%;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+}
+
+.section-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-content h2 {
+  font-size: 1.8rem;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.section-content p {
+  margin: 0 0 16px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.letter-preview {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.preview-letter {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.start-button {
+  align-self: flex-start;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.start-button:hover {
+  background-color: #388e3c;
+}
+
+@media (max-width: 768px) {
+  .exercise-section-card {
+    flex-direction: column;
+  }
+  
+  .section-image {
+    width: 100%;
+    height: 140px;
+  }
+  
+  .section-image img {
+    max-height: 100px;
+  }
+}
+
+/* Individual Exercise Page Styles */
+.exercise-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.exercise-header {
+  margin-bottom: 24px;
+  text-align: center;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.exercise-header h1 {
+  margin-bottom: 16px;
+  color: #fff;
+  font-size: 32px;
+}
+
+.description {
+  margin-bottom: 24px;
+  color: #bdbdbd;
+  line-height: 1.5;
+}
+
+.exercise-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.exercise-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .exercise-main-content {
+    flex-direction: row;
+  }
+}
+
+.video-section {
+  flex: 3;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.webcam-video, .landmark-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.landmark-canvas {
+  z-index: 10;
+}
+
+.debug-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 20;
+}
+
+.exercise-sidebar {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.alert-danger {
+  background-color: rgba(255, 69, 58, 0.2);
+  color: #ff453a;
+  border: 1px solid rgba(255, 69, 58, 0.3);
+}
+
+.alert-warning {
+  background-color: rgba(255, 204, 0, 0.2);
+  color: #ffcc00;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.current-letter-container {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.current-letter-container h2 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+.letter-display {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.current-letter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.letter-image-container {
+  width: 120px;
+  height: 120px;
+  background-color: #333;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.letter-image {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(1.2);
+}
+
+.letter-label {
+  font-size: 42px;
+  font-weight: bold;
+  margin-top: 12px;
+  color: #fff;
+}
+
+.progress-container {
+  margin-top: 16px;
+}
+
+.progress-bar {
+  height: 16px;
+  width: 100%;
+  background-color: #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #30d158;
+  transition: width 0.1s ease;
+}
+
+.progress-label {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #bdbdbd;
+}
+
+.letters-progress {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.letters-progress h3 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.letter-sequence {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+
+.sequence-letter {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  border-radius: 50%;
+  font-weight: bold;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.sequence-letter.current {
+  background-color: #0a84ff;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(10, 132, 255, 0.5);
+}
+
+.sequence-letter.completed {
+  background-color: #30d158;
+  color: white;
+}
+
+.completed-icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(10);
+}
+
+.detected-sign {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.detected-sign h3 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.sign-display {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #333;
+  color: #fff;
+}
+
+.sign-display.correct {
+  background-color: rgba(48, 209, 88, 0.2);
+  color: #30d158;
+  border: 1px solid rgba(48, 209, 88, 0.3);
+}
+
+.instructions {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.instructions h3 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.instructions ol {
+  padding-left: 24px;
+  margin: 12px 0 0;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  color: #bdbdbd;
+}
+
+.exercise-complete {
+  background-color: rgba(48, 209, 88, 0.1);
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(48, 209, 88, 0.3);
+}
+
+.exercise-complete h2 {
+  color: #30d158;
+  margin-top: 0;
+}
+
+.exercise-complete p {
+  margin-bottom: 24px;
+  color: #bdbdbd;
+}
+
+.restart-button {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background-color: #30d158;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.restart-button:hover {
+  background-color: #25a144;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .exercise-main-content {
+    flex-direction: column;
+  }
+  
+  .video-section, .exercise-sidebar {
+    width: 100%;
+  }
+
+  .video-container {
+    min-height: 300px;
+  }
+
+  .exercise-sidebar {
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .letter-sequence {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+} 

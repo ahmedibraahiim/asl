@@ -9,6 +9,7 @@ import {
   LtoPExercise,
   QtoUExercise,
   VtoZExercise,
+  ExercisesPage,
   DictionaryPage,
   CreateMatch,
   JoinMatch,
@@ -72,6 +73,14 @@ const App = () => {
         />
         
         {/* Exercise Routes */}
+        <Route 
+          path="/exercises" 
+          element={
+            <Layout>
+              <ExercisesPage />
+            </Layout>
+          } 
+        />
         <Route 
           path="/exercises/a-f" 
           element={

@@ -2,6 +2,8 @@
 const API_URL = 'http://localhost:5156/api';
 // ASL Recognition API URL
 const ASL_API_URL = 'http://localhost:8000';
+// A-to-F Recognition API URL
+const A_TO_F_API_URL = 'http://localhost:8001';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
@@ -167,6 +169,82 @@ export const aslRecognitionApi = {
     } catch (error) {
       console.error('ASL API health check error:', error);
       throw error;
+    }
+  }
+};
+
+// A-to-F Recognition API endpoints
+export const aToFRecognitionApi = {
+  detectSign: async (imageBase64: string) => {
+    try {
+      console.log('Sending detection request to A-to-F API:', `${A_TO_F_API_URL}/predict/base64`);
+      
+      // Create AbortController with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(`${A_TO_F_API_URL}/predict/base64`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: imageBase64
+        }),
+        signal: controller.signal
+      });
+      
+      // Clear the timeout
+      clearTimeout(timeoutId);
+      
+      console.log('A-to-F Detection response status:', response.status);
+      if (!response.ok) {
+        console.log('A-to-F Detection error response:', await response.clone().text());
+        // Return fallback response instead of throwing
+        return {
+          sign: "error",
+          confidence: 0,
+          landmarks: [],
+          has_hand: false,
+          is_a_to_f: false
+        };
+      }
+      
+      return handleResponse(response);
+    } catch (error: any) {
+      console.error('A-to-F Recognition API error:', error);
+      // Return fallback response for AbortError (timeout) or other errors
+      return {
+        sign: error.name === 'AbortError' ? "timeout" : "error",
+        confidence: 0,
+        landmarks: [],
+        has_hand: false,
+        is_a_to_f: false
+      };
+    }
+  },
+  
+  checkHealth: async () => {
+    try {
+      // Create AbortController with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      
+      const response = await fetch(`${A_TO_F_API_URL}/health`, {
+        signal: controller.signal
+      });
+      
+      // Clear the timeout
+      clearTimeout(timeoutId);
+      
+      return handleResponse(response);
+    } catch (error) {
+      console.error('A-to-F API health check error:', error);
+      // Return fallback health response
+      return {
+        status: "unhealthy",
+        model_loaded: false
+      };
     }
   }
 }; 

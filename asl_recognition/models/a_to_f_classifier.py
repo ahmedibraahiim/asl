@@ -149,27 +149,46 @@ class ASLAtoFClassifier:
             label: predicted label (one of A-F)
             confidence: prediction confidence
         """
-        if self.model is None:
-            raise ValueError("Model has not been trained yet.")
-        
-        # Ensure landmarks is 2D
-        if landmarks.ndim == 1:
-            landmarks = landmarks.reshape(1, -1)
-        
-        # Predict
-        label_idx = self.model.predict(landmarks)[0]
-        
-        # Get probabilities
-        proba = self.model.predict_proba(landmarks)[0]
-        confidence = proba[label_idx]
-        
-        # Get label name
-        if self.reverse_mapping:
-            label = self.reverse_mapping[label_idx]
-        else:
-            label = label_idx
-        
-        return label, confidence
+        try:
+            if self.model is None:
+                raise ValueError("Model has not been trained yet.")
+            
+            # Ensure landmarks is 2D
+            if landmarks.ndim == 1:
+                landmarks = landmarks.reshape(1, -1)
+            
+            # Print landmark shape for debugging
+            print(f"Landmarks shape for prediction: {landmarks.shape}")
+            
+            # Predict
+            label_idx = self.model.predict(landmarks)[0]
+            print(f"Predicted label_idx: {label_idx}")
+            
+            # Get probabilities
+            proba = self.model.predict_proba(landmarks)[0]
+            confidence = proba[label_idx]
+            
+            # Get label name
+            if self.reverse_mapping:
+                # Check if the label_idx exists in the reverse mapping
+                if label_idx in self.reverse_mapping:
+                    label = self.reverse_mapping[label_idx]
+                else:
+                    # If not found, return as string
+                    label = str(label_idx)
+                    print(f"Warning: label_idx {label_idx} not found in mapping, using as is")
+            else:
+                # If no mapping, just return the index as a string
+                label = str(label_idx)
+            
+            print(f"Final predicted label: {label} with confidence {confidence}")
+            return label, confidence
+        except Exception as e:
+            print(f"Error in predict method: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            # Return a default value as fallback
+            return "error", 0.0
     
     def save(self, model_path):
         """
@@ -200,16 +219,35 @@ class ASLAtoFClassifier:
         Args:
             model_path: Path to the model file
         """
-        with open(model_path, 'rb') as f:
-            data = pickle.load(f)
-        
-        self.model = data['model']
-        self.label_mapping = data['label_mapping']
-        
-        if self.label_mapping:
-            self.reverse_mapping = {v: k for k, v in self.label_mapping.items()}
-        
-        print(f"Model loaded from {model_path}")
+        try:
+            with open(model_path, 'rb') as f:
+                data = pickle.load(f)
+            
+            # Handle different formats of saved models
+            if isinstance(data, dict):
+                if 'model' in data:
+                    self.model = data['model']
+                if 'label_mapping' in data:
+                    self.label_mapping = data['label_mapping']
+            else:
+                # Direct model without dict wrapping
+                self.model = data
+            
+            # Create reverse mapping if label mapping exists
+            if self.label_mapping:
+                self.reverse_mapping = {v: k for k, v in self.label_mapping.items()}
+            
+            print(f"Model loaded from {model_path}")
+            
+            # Print model info for debugging
+            if hasattr(self.model, 'n_estimators'):
+                print(f"Random Forest model with {self.model.n_estimators} trees")
+            if self.label_mapping:
+                print(f"Label mapping: {self.label_mapping}")
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            import traceback
+            traceback.print_exc()
     
     def plot_confusion_matrix(self, y_true, y_pred):
         """
