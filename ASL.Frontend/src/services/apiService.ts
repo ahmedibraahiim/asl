@@ -131,7 +131,14 @@ export const gameApi = {
     });
     
     return handleResponse(response);
-  }
+  },
+  getMatch: async (matchId: string) => {
+    const response = await fetch(`${API_URL}/Game/${matchId}`, {
+      headers: getAuthHeader()
+    });
+    
+    return handleResponse(response);
+  },
 };
 
 // ASL Recognition API endpoints
